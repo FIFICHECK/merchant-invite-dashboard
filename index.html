@@ -416,6 +416,28 @@ function init(){
 document.getElementById('q').addEventListener('input', render);
 ['fStatus','fLike','fFee','fAd','fMtype','fCat'].forEach(id => document.getElementById(id).addEventListener('change', render));
 init(); render();
+
+// ── merge latest persisted state from Supabase on load ──────────
+// (data.js is a static snapshot; Supabase is the source of truth for
+//  sent_at/followup/feedback/merchant_id/result/status edits)
+async function loadSupabaseState(){
+  if (!SB) return;
+  try {
+    const r = await fetch(SB.url + '/rest/v1/merchant_invite?select=*', {
+      headers: {'apikey': SB.anon_key, 'Authorization': 'Bearer ' + SB.anon_key}});
+    if (!r.ok) return;
+    const rows = await r.json();
+    rows.forEach(row => {
+      const c = C.find(x => x.id === row.candidate_id);
+      if (!c) return;
+      ['sent_at','followup','feedback','merchant_id','result','status'].forEach(k => {
+        if (row[k] !== undefined && row[k] !== null) c[k] = row[k];
+      });
+    });
+    render();
+  } catch(e){ console.warn('supabase state load failed', e); }
+}
+loadSupabaseState();
 </script>
 </body>
 </html>
