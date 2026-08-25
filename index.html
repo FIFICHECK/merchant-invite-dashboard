@@ -243,7 +243,7 @@ function render(){
       <td>${badge(c.likelihood||'—', likeCls(c.likelihood))}</td>
       <td>${statusSelect(c)}${c.verified_date?`<div class="st-note">✓ ${esc(c.verified_date)}</div>`:''}</td>
       <td>${c.sent_at?`<div class="st-note" style="color:var(--green)">✅ ${esc(String(c.sent_at).slice(0,16))}</div>`:'<span class="st-note">未發送</span>'}
-          <button class="st" onclick="markSent(${c.id})" style="margin-top:4px;cursor:pointer">✓ 已發送</button></td>
+          <input type="checkbox" ${c.sent_at?'checked':''} onchange="markSentToggle(${c.id}, this.checked)" title="tick = 已發送成功" style="margin-top:4px"></td>
       <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.followup||'')}" placeholder="e.g. 3日後 follow up" onchange="saveField(${c.id},'followup',this.value)"></td>
       <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.feedback||'')}" placeholder="e.g. 傾緊佣金" onchange="saveField(${c.id},'feedback',this.value)"></td>
       <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.merchant_id||'')}" placeholder="B2019001 = 成功" onchange="saveField(${c.id},'merchant_id',this.value)" title="填咗商戶ID = success case"></td>
@@ -284,14 +284,17 @@ async function saveField(id, field, value){
   } catch(e){ alert('儲存失敗: ' + e.message); }
 }
 
-function markSent(id){
+function markSentToggle(id, checked){
   const now = new Date();
   const pad = n => String(n).padStart(2,'0');
   const ts = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  if (isPages()) { alert('⚠️ Pages 版唔可以自動記 — 話我知（例如「mark Aiko Mall 已發送」），或者用本地版。時間會係：' + ts); return; }
-  saveField(id, 'sent_at', ts);
+  if (isPages()) {
+    alert('⚠️ Pages 版唔可以自動記 — 話我知（例如「mark ' + (C.find(c=>c.id===id)?.name_cn||id) + ' 已發送」），或者用本地版。時間會係：' + ts);
+    return;
+  }
+  saveField(id, 'sent_at', checked ? ts : '');
   const c = C.find(x => x.id === id);
-  if (c) c.sent_at = ts;
+  if (c) c.sent_at = checked ? ts : '';
   render();
 }
 
