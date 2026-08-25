@@ -104,7 +104,7 @@
 <table>
 <thead><tr>
   <th style="width:34px"><input type="checkbox" id="ckAll" onchange="toggleAll(this.checked)" title="全選"></th>
-  <th>品牌</th><th>類別</th><th>Contact</th><th>社交</th><th>廣告活躍</th><th>年費能力</th><th>分數</th><th>機會</th><th>狀態</th><th>發送</th><th>跟進</th><th>回覆</th><th>商戶ID</th>
+  <th>品牌</th><th>類別</th><th>Contact</th><th>社交</th><th>廣告活躍</th><th>年費能力</th><th>分數</th><th>機會</th><th>狀態</th><th>發送</th><th>跟進</th><th>回覆</th><th>商戶ID</th><th>結果</th>
 </tr></thead>
 <tbody id="rows"></tbody>
 </table>
@@ -246,7 +246,13 @@ function render(){
           <input type="checkbox" ${c.sent_at?'checked':''} onchange="markSentToggle(${c.id}, this.checked)" title="tick = 已發送成功" style="margin-top:4px"></td>
       <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.followup||'')}" placeholder="e.g. 3日後 follow up" onchange="saveField(${c.id},'followup',this.value)"></td>
       <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.feedback||'')}" placeholder="e.g. 傾緊佣金" onchange="saveField(${c.id},'feedback',this.value)"></td>
-      <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.merchant_id||'')}" placeholder="B2019001 = 成功" onchange="saveField(${c.id},'merchant_id',this.value)" title="填咗商戶ID = success case"></td>
+      <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.merchant_id||'')}" placeholder="B2019001 = 成功" onchange="saveField(${c.id},'merchant_id',this.value)" title="填咗商戶ID = Completed = success case"></td>
+      <td><select class="st" onchange="saveField(${c.id},'result',this.value)">
+            <option value="" ${!c.result?'selected':''}>進行中</option>
+            <option value="completed" ${c.result==='completed'?'selected':''}>✅ Completed</option>
+            <option value="rejected" ${c.result==='rejected'?'selected':''}>❌ Rejected</option>
+          </select>
+          ${c.result==='rejected'?'<div class="st-note" style="color:var(--red)">已 close file</div>':(c.result==='completed'?'<div class="st-note" style="color:var(--green)">成功案例 🏆</div>':'')}</td>
     </tr>`;
   }).join('');
   document.getElementById('empty').style.display = rows.length ? 'none' : 'block';
@@ -259,28 +265,39 @@ function statusSelect(c){
 }
 
 async function setStatus(id, status){
-  if (isPages()) {
-    alert('⚠️ GitHub Pages 係靜態網站 — status 更新要經 Hermes agent 做（例如講「幫我 mark ' + (C.find(c=>c.id===id)?.name_cn||id) + ' 做 contacted」）。本地版先支援即時更新。');
-    return;
-  }
-  try {
-    const r = await fetch('/api/update', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({id, status}) });
-    const d = await r.json();
-    if(!r.ok) alert('更新失敗: ' + (d.error||r.status));
-  } catch(e){ alert('更新失敗: ' + e.message); }
+  const c = C.find(x => x.id === id);
+  try { await sbUpsert(id, {status}); if(c) c.status = status; render(); }
+  catch(e){ alert('更新失敗: ' + e.message); }
+}
+
+// ── Supabase persistence (works on GitHub Pages too) ────────────
+const SB = D.supabase || null;
+async function sbUpsert(id, fields){
+  if (!SB) { alert('⚠️ 未設定 Supabase — 更新唔到'); return; }
+  const payload = Object.assign({candidate_id: id}, fields);
+  const r = await fetch(SB.url + '/rest/v1/merchant_invite', {
+    method: 'POST',
+    headers: {'apikey': SB.anon_key, 'Authorization': 'Bearer ' + SB.anon_key,
+              'Content-Type': 'application/json',
+              'Prefer': 'resolution=merge-duplicates,return=minimal'},
+    body: JSON.stringify(payload)
+  });
+  if (!r.ok) throw new Error('Supabase HTTP ' + r.status);
 }
 
 async function saveField(id, field, value){
-  if (isPages()) {
-    alert('⚠️ GitHub Pages 係靜態網站 — 要經 Hermes agent 記低（例如講「幫我記 Aiko Mall 已 send，merchant_id=B2019001」）。本地版先支援即時輸入。');
-    return;
+  const c = C.find(x => x.id === id);
+  let extra = {};
+  if (field === 'merchant_id' && value.trim() && (c ? c.result !== 'rejected' : true)) {
+    extra = {result: 'completed'};   // 填咗商戶ID = Completed = 成功
+  }
+  if (field === 'result' && value === 'rejected') {
+    extra = {status: 'rejected'};    // Rejected = close file
   }
   try {
-    const r = await fetch('/api/update', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({id, [field]: value}) });
-    const d = await r.json();
-    if(!r.ok) alert('儲存失敗: ' + (d.error||r.status));
+    await sbUpsert(id, Object.assign({[field]: value}, extra));
+    if (c) { c[field] = value; Object.assign(c, extra); }
+    render();
   } catch(e){ alert('儲存失敗: ' + e.message); }
 }
 
@@ -288,14 +305,13 @@ function markSentToggle(id, checked){
   const now = new Date();
   const pad = n => String(n).padStart(2,'0');
   const ts = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  if (isPages()) {
-    alert('⚠️ Pages 版唔可以自動記 — 話我知（例如「mark ' + (C.find(c=>c.id===id)?.name_cn||id) + ' 已發送」），或者用本地版。時間會係：' + ts);
-    return;
-  }
-  saveField(id, 'sent_at', checked ? ts : '');
   const c = C.find(x => x.id === id);
-  if (c) c.sent_at = checked ? ts : '';
-  render();
+  try {
+    sbUpsert(id, {sent_at: checked ? ts : ''}).then(() => {
+      if (c) c.sent_at = checked ? ts : '';
+      render();
+    }).catch(e => alert('儲存失敗: ' + e.message));
+  } catch(e){ alert('儲存失敗: ' + e.message); }
 }
 
 // ── tick → WhatsApp + panel ─────────────────────────────────────
@@ -383,7 +399,8 @@ function init(){
   const nAd = C.filter(c=>c.ad_library==='active'||c.ad_level==='高').length;
   const nMid = C.filter(c=>c.likelihood==='中').length;
   const nSent = C.filter(c=>c.sent_at).length;
-  const nSuccess = C.filter(c=>c.merchant_id).length;
+  const nSuccess = C.filter(c=>c.merchant_id || c.result==='completed').length;
+  const nRejected = C.filter(c=>c.result==='rejected').length;
   document.getElementById('stats').innerHTML = `
     <div class="card blue"><div class="num">${C.length}</div><div class="lbl">總 Candidates</div></div>
     <div class="card green"><div class="num">${nReady}</div><div class="lbl">Ready Pool（未開鋪）</div></div>
@@ -392,7 +409,8 @@ function init(){
     <div class="card purple"><div class="num">${nFee}</div><div class="lbl">年費能力高</div></div>
     <div class="card red"><div class="num">${nAd}</div><div class="lbl">廣告活躍</div></div>
     <div class="card" style="border-color:var(--green)"><div class="num" style="color:var(--green)">${nSent}</div><div class="lbl">✅ 已發送</div></div>
-    <div class="card" style="border-color:var(--yellow)"><div class="num" style="color:var(--yellow)">${nSuccess}</div><div class="lbl">🏆 成功案例</div></div>`;
+    <div class="card" style="border-color:var(--yellow)"><div class="num" style="color:var(--yellow)">${nSuccess}</div><div class="lbl">🏆 成功案例</div></div>
+    <div class="card" style="border-color:var(--red)"><div class="num" style="color:var(--red)">${nRejected}</div><div class="lbl">❌ Rejected</div></div>`;
 }
 
 document.getElementById('q').addEventListener('input', render);
