@@ -390,9 +390,78 @@ function copyAllDrafts(){
   const all = sel.map(c => `【${c.name_cn||c.name_en}】\n${draftFor(c)}`).join('\n\n==========\n\n');
   navigator.clipboard.writeText(all).then(()=>alert(`✅ ${sel.length} 個 draft 已複製`), ()=>alert('複製失敗'));
 }
-function downloadPitch(){
-  if (isPages()) { alert('⚠️ GitHub Pages 係靜態網站 — 叫 Hermes agent 幫你生成（例如「生成 RNG Wine 嘅 pitch PPT」）。本地版可以直接下載。'); return; }
-  window.open('/api/pitch?id=' + currentId, '_blank');
+function loadScript(src){
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error('script load failed: ' + src));
+    document.head.appendChild(s);
+  });
+}
+async function toDataURL(url){
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('附件圖片載入失敗: ' + url);
+  const b = await r.blob();
+  return new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); });
+}
+// 喺瀏覽器直接生成 Pitch PPT（PptxGenJS CDN）— GitHub Pages 都 work，唔使 server
+async function downloadPitch(){
+  const c = C.find(x => x.id === currentId);
+  if (!c) return alert('請先 tick 揀一間 store');
+  const name = (c.name_cn || c.name_en || '品牌').trim();
+  const nameEn = c.name_en && c.name_en !== name ? c.name_en : '';
+  const cat = c.category || '—';
+  const web = c.website || '';
+  const fee = c.fee_rating === '高' ? '高（具備能力）' : (c.fee_rating === '中' ? '中（需評估）' : '低');
+  try {
+    if (!window.PptxGenJS) await loadScript('https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');
+    const pptx = new window.PptxGenJS();
+    pptx.defineLayout({name: 'WIDE', width: 13.33, height: 7.5});
+    pptx.layout = 'WIDE';
+
+    // Slide 1 — 品牌 + 邀請
+    const s1 = pptx.addSlide();
+    s1.background = {color: 'F5F5F5'};
+    s1.addText(`誠邀 ${name} 加入 HKTVmall 🚀`, {x: 0.5, y: 0.4, w: 12.3, h: 0.9, fontSize: 30, bold: true, color: 'E31E24'});
+    if (nameEn) s1.addText(nameEn, {x: 0.5, y: 1.25, w: 12.3, h: 0.5, fontSize: 16, color: '666666'});
+    s1.addText([
+      {text: `類別: ${cat}`, options: {bullet: true}},
+      {text: web ? `網站: ${web}` : '', options: {bullet: true}},
+      {text: `評估分數: ${c.score || 0}（機會率 ${c.likelihood || '—'}）｜年費能力: ${fee}`, options: {bullet: true}},
+    ], {x: 0.5, y: 2.0, w: 12.3, h: 1.6, fontSize: 15, color: '333333', lineSpacing: 28});
+    s1.addText('點解要考慮 HKTVmall？', {x: 0.5, y: 3.7, w: 12.3, h: 0.5, fontSize: 18, bold: true, color: 'E31E24'});
+    s1.addText([
+      {text: '香港最大網購平台，300萬+ 活躍會員', options: {bullet: true}},
+      {text: '一站式物流 + 倉儲 + 客戶服務，慳返營運成本', options: {bullet: true}},
+      {text: '廣告 / 直播帶貨 / 會員日活動支援', options: {bullet: true}},
+      {text: '首年年費僅 HK$25,000（平均每月約 HK$2,083，限時優惠）', options: {bullet: true}},
+    ], {x: 0.5, y: 4.2, w: 12.3, h: 2.2, fontSize: 15, color: '333333', lineSpacing: 30});
+
+    // Slide 2 — 建議策略 + 預期
+    const s2 = pptx.addSlide();
+    s2.background = {color: 'FFFFFF'};
+    s2.addText(`建議上架策略 — ${name}`, {x: 0.5, y: 0.4, w: 12.3, h: 0.7, fontSize: 26, bold: true, color: 'E31E24'});
+    const level = c.likelihood || '中';
+    const gmv = level === '高' ? 'HK$50,000 – 100,000/月' : (level === '中' ? 'HK$20,000 – 50,000/月' : 'HK$10,000 – 20,000/月');
+    s2.addText([
+      {text: '先開旗艦店，精選 20-50 個熱賣 SKU 起步', options: {bullet: true}},
+      {text: '配合開店優惠 + 會員日活動谷流量', options: {bullet: true}},
+      {text: '用 HKTVmall 廣告（$25,000 年費已含基本曝光）', options: {bullet: true}},
+      {text: `預期首季 GMV: ${gmv}`, options: {bullet: true, bold: true}},
+    ], {x: 0.5, y: 1.5, w: 12.3, h: 3.2, fontSize: 16, color: '333333', lineSpacing: 34});
+    s2.addText('📞 詳情聯絡: Jerry Chan（Senior MRM）｜Tel/WhatsApp: 6071 4793｜https://www.hktvmall.com/', {x: 0.5, y: 6.6, w: 12.3, h: 0.6, fontSize: 13, color: '666666'});
+
+    // Slide 3 — Rate Card + 名卡
+    const s3 = pptx.addSlide();
+    s3.background = {color: 'F5F5F5'};
+    s3.addText('收費表 & 聯絡', {x: 0.5, y: 0.3, w: 12.3, h: 0.6, fontSize: 22, bold: true, color: 'E31E24'});
+    const [rc, nc] = await Promise.all([toDataURL('assets/rate_card.png'), toDataURL('assets/name_card.jpg')]);
+    s3.addImage({data: rc, x: 0.5, y: 1.0, w: 5.6, h: 6.0});
+    s3.addImage({data: nc, x: 7.0, y: 1.0, w: 5.6, h: 6.0});
+
+    await pptx.writeFile({fileName: `HKTVmall_邀請_${(name||'brand').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40)}.pptx`});
+  } catch(e){
+    alert('⚠️ 生成失敗: ' + e.message + (e.message.includes('script load') ? '（網絡連唔到 CDN？）' : ''));
+  }
 }
 function batchWhatsApp(){
   const sel = C.filter(c => ticked[c.id] && waNumber(c));
