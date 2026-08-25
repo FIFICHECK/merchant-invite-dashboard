@@ -9,33 +9,36 @@
     --bg: #0f1419; --panel: #1a212b; --panel2: #232c38; --border: #2e3a48;
     --text: #e0e0e0; --muted: #9aa7b5; --accent: #4da3ff;
     --green: #3ddc84; --yellow: #f5c542; --red: #ff6b6b; --purple: #b08cff;
+    --wa: #25d366;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", "PingFang HK", sans-serif; font-size: 14px; padding: 16px; max-width: 1500px; margin: 0 auto; }
-  h1 { font-size: 1.35rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", "PingFang HK", sans-serif; font-size: 14px; padding: 8px; }
+  h1 { font-size: 1.3rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .sub { color: var(--muted); font-size: 0.82rem; margin-top: 4px; }
-  .criteria { color: var(--muted); font-size: 0.78rem; margin-top: 6px; line-height: 1.5; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 14px 0; }
-  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
-  .card .num { font-size: 1.45rem; font-weight: 700; }
-  .card .lbl { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+  .criteria { color: var(--muted); font-size: 0.76rem; margin-top: 6px; line-height: 1.5; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 10px 0; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+  .card .num { font-size: 1.35rem; font-weight: 700; }
+  .card .lbl { color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
   .card.green .num { color: var(--green); } .card.blue .num { color: var(--accent); }
   .card.yellow .num { color: var(--yellow); } .card.red .num { color: var(--red); }
   .card.purple .num { color: var(--purple); }
-  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px; position: sticky; top: 0; z-index: 10; }
-  .filters input[type=text] { flex: 1; min-width: 160px; background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 12px; font-size: 0.88rem; }
-  .filters select { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 0.88rem; max-width: 160px; }
-  .filters button { background: var(--accent); color: #0a0f14; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; font-size: 0.88rem; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 8px; margin-bottom: 10px; position: sticky; top: 0; z-index: 10; }
+  .filters input[type=text] { flex: 1; min-width: 150px; background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 12px; font-size: 0.88rem; }
+  .filters select { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 0.88rem; max-width: 150px; }
+  .filters button { background: var(--accent); color: #0a0f14; border: none; border-radius: 8px; padding: 7px 14px; font-weight: 700; cursor: pointer; font-size: 0.88rem; }
+  .filters button.wa { background: var(--wa); }
   .tablewrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
-  table { border-collapse: collapse; width: 100%; min-width: 1200px; }
-  th { background: var(--panel2); color: var(--muted); text-align: left; padding: 9px 10px; font-size: 0.78rem; position: sticky; top: 0; white-space: nowrap; }
-  td { padding: 8px 10px; border-top: 1px solid var(--border); vertical-align: top; font-size: 0.85rem; }
+  table { border-collapse: collapse; width: 100%; min-width: 1300px; }
+  th { background: var(--panel2); color: var(--muted); text-align: left; padding: 8px 10px; font-size: 0.76rem; position: sticky; top: 0; white-space: nowrap; }
+  td { padding: 7px 10px; border-top: 1px solid var(--border); vertical-align: top; font-size: 0.84rem; }
   tr:hover td { background: #1d2733; }
+  tr.ticked td { background: #12301f; }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   .name { font-weight: 600; }
-  .name .en { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+  .name .en { color: var(--muted); font-weight: 400; font-size: 0.78rem; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.74rem; font-weight: 600; white-space: nowrap; }
   .b-high { background: #1d3a2a; color: var(--green); }
   .b-mid { background: #3a331d; color: var(--yellow); }
   .b-low { background: #3a2424; color: var(--red); }
@@ -43,28 +46,43 @@
   .b-active { background: #1d3a2a; color: var(--green); }
   .b-status { background: #23304a; color: var(--accent); }
   .contacts { display: flex; flex-wrap: wrap; gap: 4px; }
-  .chip { background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 7px; font-size: 0.75rem; }
+  .chip { background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 7px; font-size: 0.74rem; }
   .chip a { color: var(--text); }
   .chip.wa { border-color: #1f6e43; color: var(--green); }
   .chip.wa a { color: var(--green); }
-  .scorebar { display: inline-block; width: 46px; height: 6px; background: var(--panel2); border-radius: 3px; vertical-align: middle; margin-right: 6px; overflow: hidden; }
+  .scorebar { display: inline-block; width: 44px; height: 6px; background: var(--panel2); border-radius: 3px; vertical-align: middle; margin-right: 6px; overflow: hidden; }
   .scorebar i { display: block; height: 100%; background: linear-gradient(90deg, var(--red), var(--yellow), var(--green)); }
-  .ad-dots { letter-spacing: 1px; }
-  .st-note { color: var(--muted); font-size: 0.75rem; }
-  select.st { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 3px 6px; font-size: 0.78rem; }
+  .st-note { color: var(--muted); font-size: 0.74rem; }
+  select.st { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 3px 6px; font-size: 0.76rem; }
   .empty { text-align: center; color: var(--muted); padding: 30px; }
+  input[type=checkbox] { width: 17px; height: 17px; accent-color: var(--wa); cursor: pointer; }
+
+  /* invitation panel */
+  #panel { position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel); border-top: 2px solid var(--wa); padding: 12px 16px; box-shadow: 0 -6px 24px rgba(0,0,0,.5); z-index: 20; display: none; }
+  #panel.open { display: block; }
+  #panel .ph { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  #panel .ph b { font-size: 1rem; }
+  #panel .ph .x { margin-left: auto; background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; }
+  #panel textarea { width: 100%; min-height: 150px; background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px; font-size: 0.85rem; line-height: 1.55; font-family: inherit; resize: vertical; }
+  #panel .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  #panel .acts button { background: var(--wa); color: #06120b; border: none; border-radius: 8px; padding: 9px 16px; font-weight: 700; cursor: pointer; font-size: 0.88rem; }
+  #panel .acts button.ghost { background: var(--panel2); color: var(--text); border: 1px solid var(--border); }
+  #panel .acts button.dl { background: var(--accent); color: #0a0f14; }
+  #panel .acts button.ppt { background: var(--purple); color: #140a26; }
+  #panel .hint { color: var(--muted); font-size: 0.76rem; margin-top: 6px; }
   @media (max-width: 640px) {
-    body { padding: 10px; } .filters input[type=text] { min-width: 120px; }
+    body { padding: 6px; } .filters input[type=text] { min-width: 110px; }
     .stats { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
 </head>
 <body>
-<h1>🚀 New Merchant Invite Dashboard <span style="font-size:0.8rem;color:var(--muted)">(每週更新)</span></h1>
+<h1>🚀 New Merchant Invite Dashboard <span style="font-size:0.78rem;color:var(--muted)">(每週更新)</span></h1>
 <div class="sub">HKTVmall 商戶開發 — 每星期由出面搵新 potential merchant，符合 4 個 invite 條件先入選</div>
 <div class="criteria">
   🎯 <b>Invite 條件</b>：C1 有自己 website / IG / FB / Threads ｜ C2 有直接 email / Tel / WhatsApp contact ｜
-  C3 有能力同機會俾 <b>$25,000</b> 年費 ｜ C4 出面 active 落廣告
+  C3 有能力同機會俾 <b>$25,000</b> 年費 ｜ C4 出面 active 落廣告 ｜
+  ✅ Tick checkbox → 自動開 WhatsApp + Draft 邀請信（附名卡 / Rate Card / Pitch PPT）
 </div>
 
 <div class="stats" id="stats"></div>
@@ -77,12 +95,15 @@
   <select id="fAd"><option value="">廣告活躍: 全部</option><option>高</option><option>中</option><option>低</option><option>無</option></select>
   <select id="fMtype"><option value="">類型: 全部</option><option>physical</option><option>evoucher</option></select>
   <select id="fCat"><option value="">類別: 全部</option></select>
+  <button class="wa" onclick="batchWhatsApp()" title="Tick 咗嘅 rows 全部開 WhatsApp draft">💬 全部 WhatsApp</button>
+  <button onclick="copyAllDrafts()" title="Tick 咗嘅 rows 複製全部 draft 去 clipboard">📋 複製全部 Draft</button>
   <button onclick="exportCSV()">⬇️ 匯出 CSV</button>
 </div>
 
 <div class="tablewrap">
 <table>
 <thead><tr>
+  <th style="width:34px"><input type="checkbox" id="ckAll" onchange="toggleAll(this.checked)" title="全選"></th>
   <th>品牌</th><th>類別</th><th>Contact</th><th>社交</th><th>廣告活躍</th><th>年費能力</th><th>分數</th><th>機會</th><th>狀態</th><th>來源</th>
 </tr></thead>
 <tbody id="rows"></tbody>
@@ -90,18 +111,84 @@
 <div id="empty" class="empty" style="display:none">搵唔到符合 filter 嘅 candidates</div>
 </div>
 
+<!-- invitation panel -->
+<div id="panel">
+  <div class="ph">
+    <b id="pnlName">—</b>
+    <span class="st-note" id="pnlMeta"></span>
+    <button class="x" onclick="closePanel()">✕</button>
+  </div>
+  <textarea id="pnlDraft"></textarea>
+  <div class="acts">
+    <button id="pnlWa" onclick="openWaCurrent()">💬 開啟 WhatsApp Web</button>
+    <button class="ghost" onclick="copyDraft()">📋 複製 Draft</button>
+    <button class="dl" onclick="window.open('assets/name_card.jpg','_blank')">📇 名卡</button>
+    <button class="dl" onclick="window.open('assets/rate_card.png','_blank')">💳 Rate Card</button>
+    <button class="ppt" onclick="downloadPitch()">📊 生成 Pitch PPT</button>
+  </div>
+  <div class="hint" id="pnlHint"></div>
+</div>
+
 <script src="data.js"></script>
 <script>
 const D = window.MERCHANT_INVITE_DATA || { candidates: [] };
 const C = D.candidates || [];
 const STATUSES = ["candidate","verified_not_on","verified_on","ambiguous","error","contacted","invited","joined","rejected","used"];
+const ticked = {};   // id -> true  (JS var only — GitHub Pages sandbox blocks localStorage)
+let currentId = null;
 
 function esc(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function urlOf(s){ return (s||'').includes('http') ? s : (s ? 'https://' + s : ''); }
 function link(s, label, cls){ if(!s) return ''; const u=urlOf(s); return `<span class="chip ${cls||''}"><a href="${esc(u)}" target="_blank">${esc(label||s)}</a></span>`; }
 function badge(v, cls){ return v ? `<span class="badge ${cls}">${esc(v)}</span>` : '<span class="badge b-none">—</span>'; }
 function likeCls(v){ return v==='高'?'b-high':(v==='中'?'b-mid':(v==='低'?'b-low':'b-none')); }
+function isPages(){ return location.hostname.includes('github.io'); }
 
+// ── invitation draft ────────────────────────────────────────────
+function draftFor(c){
+  const name = (c.name_cn || c.name_en || '貴品牌').trim();
+  const nameEn = c.name_en ? ` (${c.name_en})` : '';
+  const cat = c.category || '你哋嘅類別';
+  const web = c.website ? `（${c.website}）` : '';
+  return `Hi ${name}${nameEn} 團隊 👋
+
+我係 Jerry Chan，HKTVmall（Hong Kong Technology Venture）嘅 Senior Merchant Relationship Manager。
+
+留意到貴品牌喺${cat}領域做得幾好${web}，想邀請你哋加入 HKTVmall — 香港最大網購平台，擁有 300萬+ 活躍會員！🚀
+
+✨ 點解要考慮 HKTVmall？
+• 首年年費僅 HK$25,000（限時優惠，絕無隱藏收費）
+• 300萬+ 會員流量，即刻開拓線上客源
+• 一站式物流 + 倉儲 + 客戶服務
+• 廣告 / 直播帶貨 / 會員日活動支援
+
+📎 名卡同 Rate Card 喺附件，詳細收費一睇就明。有興趣嘅話，隨時 WhatsApp 我哋傾多啲 😊
+
+Best regards,
+Jerry Chan
+Senior Merchant Relationship Manager
+HKTVmall（香港科技探索有限公司）
+Email: jerry.chan@hktv.com.hk | Tel: 3145 6888`;
+}
+
+function waNumber(c){
+  const wa = (c.whatsapp || '').replace(/[^\d]/g, '');
+  if (wa && wa.length >= 8) return wa.length === 8 ? '852' + wa : wa;
+  const ph = (c.phone || '').replace(/[^\d]/g, '');
+  if (ph && ph.length === 8) return '852' + ph;
+  return '';
+}
+
+function openChannel(c, draft){
+  const num = waNumber(c);
+  const text = encodeURIComponent(draft);
+  if (num) { window.open(`https://wa.me/${num}?text=${text}`, '_blank'); return 'wa'; }
+  if (c.email) { window.open(`mailto:${c.email}?subject=${encodeURIComponent('HKTVmall 開店邀請 — ' + (c.name_cn||c.name_en))}&body=${text}`, '_blank'); return 'mail'; }
+  if (c.phone) { window.open(`tel:${c.phone.replace(/\s/g,'')}`, '_blank'); return 'tel'; }
+  return '';
+}
+
+// ── render ──────────────────────────────────────────────────────
 function render(){
   const q = (document.getElementById('q').value||'').toLowerCase();
   const f = id => document.getElementById(id).value;
@@ -130,7 +217,8 @@ function render(){
     const adTxt = (c.ad_level? c.ad_level : '—') + (c.ad_library==='active' ? ' +AdLib' : '');
     const fee = badge(c.fee_rating, c.fee_rating==='高'?'b-high':(c.fee_rating==='中'?'b-mid':'b-low'));
     const score = c.score||0;
-    return `<tr>
+    return `<tr class="${ticked[c.id]?'ticked':''}">
+      <td><input type="checkbox" ${ticked[c.id]?'checked':''} onchange="onTick(${c.id}, this.checked)"></td>
       <td class="name">${esc(c.name_cn||'—')}${c.name_en?`<br><span class="en">${esc(c.name_en)}</span>`:''}
           ${c.stores?`<div class="st-note">🏬 ${esc(c.stores)}</div>`:''}
           ${c.notes?`<div class="st-note">📝 ${esc(String(c.notes).slice(0,80))}</div>`:''}</td>
@@ -148,6 +236,7 @@ function render(){
     </tr>`;
   }).join('');
   document.getElementById('empty').style.display = rows.length ? 'none' : 'block';
+  document.getElementById('ckAll').checked = rows.length > 0 && rows.every(r => ticked[r.id]);
 }
 
 function statusSelect(c){
@@ -156,8 +245,8 @@ function statusSelect(c){
 }
 
 async function setStatus(id, status){
-  if (location.hostname.includes('github.io')) {
-    alert('⚠️ GitHub Pages 係靜態網站 — status 更新要經 Hermes agent 做（例如講「幫我 mark RNG Wine 做 contacted」）。本地版先支援即時更新。');
+  if (isPages()) {
+    alert('⚠️ GitHub Pages 係靜態網站 — status 更新要經 Hermes agent 做（例如講「幫我 mark ' + (C.find(c=>c.id===id)?.name_cn||id) + ' 做 contacted」）。本地版先支援即時更新。');
     return;
   }
   try {
@@ -166,6 +255,67 @@ async function setStatus(id, status){
     const d = await r.json();
     if(!r.ok) alert('更新失敗: ' + (d.error||r.status));
   } catch(e){ alert('更新失敗: ' + e.message); }
+}
+
+// ── tick → WhatsApp + panel ─────────────────────────────────────
+function onTick(id, checked){
+  ticked[id] = checked;
+  const c = C.find(x => x.id === id);
+  if (!c) return;
+  const draft = draftFor(c);
+  if (checked) {
+    const ch = openChannel(c, draft);   // auto open WhatsApp/mail
+    openPanel(c, draft, ch);
+  } else if (currentId === id) {
+    closePanel();
+  }
+  render();
+}
+
+function toggleAll(checked){
+  const q = (document.getElementById('q').value||'').toLowerCase();
+  C.forEach(c => {
+    if(q && !((c.name_cn||'')+' '+(c.name_en||'')+' '+(c.category||'')+' '+(c.website||'')).toLowerCase().includes(q)) return;
+    ticked[c.id] = checked;
+  });
+  if (checked && !currentId) { const first = C.find(c=>ticked[c.id]); if(first) { openPanel(first, draftFor(first), ''); } }
+  render();
+}
+
+function openPanel(c, draft, channel){
+  currentId = c.id;
+  document.getElementById('pnlName').textContent = (c.name_cn || c.name_en) + (c.whatsapp ? ' 💬 ' + c.whatsapp : '');
+  document.getElementById('pnlMeta').textContent = `${c.category||''} | score ${c.score||0} ${c.likelihood||''} | ${c.website||'冇官網'}`;
+  document.getElementById('pnlDraft').value = draft;
+  const ch = channel || openChannel(c, draft);
+  const hints = [];
+  if (ch === 'wa') hints.push('✅ WhatsApp Web 已開（新 tab）— 檢查 message，附件要手動加：名卡 + Rate Card 可喺下面下載');
+  else if (ch === 'mail') hints.push('✅ Email draft 已開（mailto）');
+  else if (ch === 'tel') hints.push('✅ 已開電話撥號');
+  else hints.push('⚠️ 呢間鋪冇 WhatsApp / email / phone contact — 要人手搵聯絡方法');
+  if (isPages()) hints.push('⚠️ GitHub Pages 版：Pitch PPT 要喺本地版生成（或叫 Hermes agent 幫手）');
+  document.getElementById('pnlHint').textContent = hints.join(' ｜ ');
+  document.getElementById('panel').classList.add('open');
+}
+
+function closePanel(){ currentId = null; document.getElementById('panel').classList.remove('open'); }
+function openWaCurrent(){ const c = C.find(x=>x.id===currentId); if(c) openChannel(c, document.getElementById('pnlDraft').value); }
+function copyDraft(){ navigator.clipboard.writeText(document.getElementById('pnlDraft').value).then(()=>alert('✅ Draft 已複製'), ()=>alert('複製失敗 — 手動 Ctrl+C')); }
+function copyAllDrafts(){
+  const sel = C.filter(c => ticked[c.id]);
+  if (!sel.length) return alert('未 tick 任何 store');
+  const all = sel.map(c => `【${c.name_cn||c.name_en}】\n${draftFor(c)}`).join('\n\n==========\n\n');
+  navigator.clipboard.writeText(all).then(()=>alert(`✅ ${sel.length} 個 draft 已複製`), ()=>alert('複製失敗'));
+}
+function downloadPitch(){
+  if (isPages()) { alert('⚠️ GitHub Pages 係靜態網站 — 叫 Hermes agent 幫你生成（例如「生成 RNG Wine 嘅 pitch PPT」）。本地版可以直接下載。'); return; }
+  window.open('/api/pitch?id=' + currentId, '_blank');
+}
+function batchWhatsApp(){
+  const sel = C.filter(c => ticked[c.id] && waNumber(c));
+  if (!sel.length) return alert('未 tick 任何有 WhatsApp 嘅 store');
+  sel.forEach(c => window.open(`https://wa.me/${waNumber(c)}?text=${encodeURIComponent(draftFor(c))}`, '_blank'));
+  alert(`✅ 已開 ${sel.length} 個 WhatsApp tab（瀏覽器可能問你准唔准開 popup）`);
 }
 
 function exportCSV(){
