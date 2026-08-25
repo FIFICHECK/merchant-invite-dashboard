@@ -153,7 +153,7 @@ let currentId = null;
 
 function esc(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function urlOf(s){ return (s||'').includes('http') ? s : (s ? 'https://' + s : ''); }
-function link(s, label, cls){ if(!s) return ''; const u=urlOf(s); return `<span class="chip ${cls||''}"><a href="${esc(u)}" target="_blank">${esc(label||s)}</a></span>`; }
+function link(s, label, cls, title){ if(!s) return ''; const u=urlOf(s); return `<span class="chip ${cls||''}"><a href="${esc(u)}" target="_blank"${title?` title="${esc(title)}"`:''}>${esc(label||s)}</a></span>`; }
 function badge(v, cls){ return v ? `<span class="badge ${cls}">${esc(v)}</span>` : '<span class="badge b-none">—</span>'; }
 function likeCls(v){ return v==='高'?'b-high':(v==='中'?'b-mid':(v==='低'?'b-low':'b-none')); }
 function isPages(){ return location.hostname.includes('github.io'); }
@@ -249,8 +249,8 @@ function render(){
     if(c.phone) contacts.push(link('tel:'+c.phone.replace(/\s/g,''), '📞 '+c.phone));
     if(c.whatsapp) contacts.push(`<span class="chip wa"><a href="https://wa.me/${waNumOf(c.whatsapp)}" target="_blank">💬 ${esc(waDisplay(c.whatsapp))}</a></span>`);
     const socials = [];
-    if(c.ig) socials.push(link('https://www.instagram.com/'+c.ig.replace(/^@/,''), 'IG:'+c.ig.replace(/^@/,'').slice(0,20)));
-    if(c.fb) socials.push(link('https://www.facebook.com/'+c.fb.replace(/^@/,''), 'FB:'+c.fb.replace(/^@/,'').slice(0,20)));
+    if(c.ig) socials.push(link('https://www.instagram.com/'+c.ig.replace(/^@/,''), 'IG:'+c.ig.replace(/^@/,'').slice(0,20), '', '開 IG profile（撳 Message 掣先入到 DM）'));
+    if(c.fb) socials.push(link('https://m.me/'+c.fb.replace(/^@/,''), 'FB:'+c.fb.replace(/^@/,'').slice(0,20), '', '開 Messenger 直接 send msg'));
     if(c.threads) socials.push(link('https://www.threads.net/@'+c.threads.replace(/^@/,''), 'Threads:'+c.threads.replace(/^@/,'').slice(0,20)));
     const adPix = (c.ad_pixels||'').split(',').filter(Boolean).join(' · ') || (c.ad_level? '—':'無');
     const adTxt = (c.ad_level? c.ad_level : '—') + (c.ad_library==='active' ? ' +AdLib' : '');
