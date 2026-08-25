@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Merchant Invite Dashboard 🚀</title>
+<style>
+  :root {
+    --bg: #0f1419; --panel: #1a212b; --panel2: #232c38; --border: #2e3a48;
+    --text: #e0e0e0; --muted: #9aa7b5; --accent: #4da3ff;
+    --green: #3ddc84; --yellow: #f5c542; --red: #ff6b6b; --purple: #b08cff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", "Microsoft JhengHei", "PingFang HK", sans-serif; font-size: 14px; padding: 16px; max-width: 1500px; margin: 0 auto; }
+  h1 { font-size: 1.35rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sub { color: var(--muted); font-size: 0.82rem; margin-top: 4px; }
+  .criteria { color: var(--muted); font-size: 0.78rem; margin-top: 6px; line-height: 1.5; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 14px 0; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .card .num { font-size: 1.45rem; font-weight: 700; }
+  .card .lbl { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+  .card.green .num { color: var(--green); } .card.blue .num { color: var(--accent); }
+  .card.yellow .num { color: var(--yellow); } .card.red .num { color: var(--red); }
+  .card.purple .num { color: var(--purple); }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-bottom: 12px; position: sticky; top: 0; z-index: 10; }
+  .filters input[type=text] { flex: 1; min-width: 160px; background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 12px; font-size: 0.88rem; }
+  .filters select { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size: 0.88rem; max-width: 160px; }
+  .filters button { background: var(--accent); color: #0a0f14; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; font-size: 0.88rem; }
+  .tablewrap { overflow-x: auto; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; min-width: 1200px; }
+  th { background: var(--panel2); color: var(--muted); text-align: left; padding: 9px 10px; font-size: 0.78rem; position: sticky; top: 0; white-space: nowrap; }
+  td { padding: 8px 10px; border-top: 1px solid var(--border); vertical-align: top; font-size: 0.85rem; }
+  tr:hover td { background: #1d2733; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .name { font-weight: 600; }
+  .name .en { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+  .b-high { background: #1d3a2a; color: var(--green); }
+  .b-mid { background: #3a331d; color: var(--yellow); }
+  .b-low { background: #3a2424; color: var(--red); }
+  .b-none { background: #2a2f38; color: var(--muted); }
+  .b-active { background: #1d3a2a; color: var(--green); }
+  .b-status { background: #23304a; color: var(--accent); }
+  .contacts { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip { background: var(--panel2); border: 1px solid var(--border); border-radius: 6px; padding: 2px 7px; font-size: 0.75rem; }
+  .chip a { color: var(--text); }
+  .chip.wa { border-color: #1f6e43; color: var(--green); }
+  .chip.wa a { color: var(--green); }
+  .scorebar { display: inline-block; width: 46px; height: 6px; background: var(--panel2); border-radius: 3px; vertical-align: middle; margin-right: 6px; overflow: hidden; }
+  .scorebar i { display: block; height: 100%; background: linear-gradient(90deg, var(--red), var(--yellow), var(--green)); }
+  .ad-dots { letter-spacing: 1px; }
+  .st-note { color: var(--muted); font-size: 0.75rem; }
+  select.st { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 3px 6px; font-size: 0.78rem; }
+  .empty { text-align: center; color: var(--muted); padding: 30px; }
+  @media (max-width: 640px) {
+    body { padding: 10px; } .filters input[type=text] { min-width: 120px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<h1>🚀 New Merchant Invite Dashboard <span style="font-size:0.8rem;color:var(--muted)">(每週更新)</span></h1>
+<div class="sub">HKTVmall 商戶開發 — 每星期由出面搵新 potential merchant，符合 4 個 invite 條件先入選</div>
+<div class="criteria">
+  🎯 <b>Invite 條件</b>：C1 有自己 website / IG / FB / Threads ｜ C2 有直接 email / Tel / WhatsApp contact ｜
+  C3 有能力同機會俾 <b>$25,000</b> 年費 ｜ C4 出面 active 落廣告
+</div>
+
+<div class="stats" id="stats"></div>
+
+<div class="filters">
+  <input type="text" id="q" placeholder="🔍 搜尋品牌名 / 類別 / 網站…">
+  <select id="fStatus"><option value="">狀態: 全部</option></select>
+  <select id="fLike"><option value="">機會率: 全部</option><option>高</option><option>中</option><option>低</option></select>
+  <select id="fFee"><option value="">年費能力: 全部</option><option>高</option><option>中</option><option>低</option></select>
+  <select id="fAd"><option value="">廣告活躍: 全部</option><option>高</option><option>中</option><option>低</option><option>無</option></select>
+  <select id="fMtype"><option value="">類型: 全部</option><option>physical</option><option>evoucher</option></select>
+  <select id="fCat"><option value="">類別: 全部</option></select>
+  <button onclick="exportCSV()">⬇️ 匯出 CSV</button>
+</div>
+
+<div class="tablewrap">
+<table>
+<thead><tr>
+  <th>品牌</th><th>類別</th><th>Contact</th><th>社交</th><th>廣告活躍</th><th>年費能力</th><th>分數</th><th>機會</th><th>狀態</th><th>來源</th>
+</tr></thead>
+<tbody id="rows"></tbody>
+</table>
+<div id="empty" class="empty" style="display:none">搵唔到符合 filter 嘅 candidates</div>
+</div>
+
+<script src="data.js"></script>
+<script>
+const D = window.MERCHANT_INVITE_DATA || { candidates: [] };
+const C = D.candidates || [];
+const STATUSES = ["candidate","verified_not_on","verified_on","ambiguous","error","contacted","invited","joined","rejected","used"];
+
+function esc(s){ return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function urlOf(s){ return (s||'').includes('http') ? s : (s ? 'https://' + s : ''); }
+function link(s, label, cls){ if(!s) return ''; const u=urlOf(s); return `<span class="chip ${cls||''}"><a href="${esc(u)}" target="_blank">${esc(label||s)}</a></span>`; }
+function badge(v, cls){ return v ? `<span class="badge ${cls}">${esc(v)}</span>` : '<span class="badge b-none">—</span>'; }
+function likeCls(v){ return v==='高'?'b-high':(v==='中'?'b-mid':(v==='低'?'b-low':'b-none')); }
+
+function render(){
+  const q = (document.getElementById('q').value||'').toLowerCase();
+  const f = id => document.getElementById(id).value;
+  const rows = C.filter(c => {
+    if(q && !((c.name_cn||'')+' '+(c.name_en||'')+' '+(c.category||'')+' '+(c.website||'')).toLowerCase().includes(q)) return false;
+    if(f('fStatus') && c.status !== f('fStatus')) return false;
+    if(f('fLike') && (c.likelihood||'') !== f('fLike')) return false;
+    if(f('fFee') && (c.fee_rating||'') !== f('fFee')) return false;
+    if(f('fAd') && (c.ad_level||'') !== f('fAd')) return false;
+    if(f('fMtype') && (c.mtype||'') !== f('fMtype')) return false;
+    if(f('fCat') && (c.category||'') !== f('fCat')) return false;
+    return true;
+  }).sort((a,b)=>(b.score||0)-(a.score||0));
+
+  document.getElementById('rows').innerHTML = rows.map(c => {
+    const contacts = [];
+    if(c.website) contacts.push(link(c.website, '🌐 官網'));
+    if(c.email) contacts.push(link('mailto:'+c.email, '✉️ '+c.email));
+    if(c.phone) contacts.push(link('tel:'+c.phone.replace(/\s/g,''), '📞 '+c.phone));
+    if(c.whatsapp) contacts.push(`<span class="chip wa"><a href="https://wa.me/${(c.whatsapp.replace(/[^\d]/g,''))}" target="_blank">💬 ${esc(c.whatsapp)}</a></span>`);
+    const socials = [];
+    if(c.ig) socials.push(link('https://www.instagram.com/'+c.ig.replace(/^@/,''), 'IG:'+c.ig.replace(/^@/,'').slice(0,20)));
+    if(c.fb) socials.push(link('https://www.facebook.com/'+c.fb.replace(/^@/,''), 'FB:'+c.fb.replace(/^@/,'').slice(0,20)));
+    if(c.threads) socials.push(link('https://www.threads.net/@'+c.threads.replace(/^@/,''), 'Threads:'+c.threads.replace(/^@/,'').slice(0,20)));
+    const adPix = (c.ad_pixels||'').split(',').filter(Boolean).join(' · ') || (c.ad_level? '—':'無');
+    const adTxt = (c.ad_level? c.ad_level : '—') + (c.ad_library==='active' ? ' +AdLib' : '');
+    const fee = badge(c.fee_rating, c.fee_rating==='高'?'b-high':(c.fee_rating==='中'?'b-mid':'b-low'));
+    const score = c.score||0;
+    return `<tr>
+      <td class="name">${esc(c.name_cn||'—')}${c.name_en?`<br><span class="en">${esc(c.name_en)}</span>`:''}
+          ${c.stores?`<div class="st-note">🏬 ${esc(c.stores)}</div>`:''}
+          ${c.notes?`<div class="st-note">📝 ${esc(String(c.notes).slice(0,80))}</div>`:''}</td>
+      <td>${esc(c.category||'—')}${c.subcategory?`<div class="st-note">${esc(c.subcategory)}</div>`:''}<div class="st-note">${esc(c.mtype||'')}</div></td>
+      <td><div class="contacts">${contacts.join('')||'<span class="st-note">未搵到</span>'}</div></td>
+      <td><div class="contacts">${socials.join('')||'<span class="st-note">—</span>'}</div></td>
+      <td>${badge(adTxt, c.ad_library==='active'||c.ad_level==='高'?'b-high':(c.ad_level==='中'?'b-mid':'b-none'))}
+          <div class="st-note">${esc(adPix)}</div>
+          ${c.ad_evidence?`<div class="st-note">🔗 ${esc(String(c.ad_evidence).slice(0,60))}</div>`:''}</td>
+      <td>${fee}${c.fee_note?`<div class="st-note">${esc(String(c.fee_note).slice(0,60))}</div>`:''}</td>
+      <td><span class="scorebar"><i style="width:${Math.min(100,score)}%"></i></span>${score}</td>
+      <td>${badge(c.likelihood||'—', likeCls(c.likelihood))}</td>
+      <td>${statusSelect(c)}${c.verified_date?`<div class="st-note">✓ ${esc(c.verified_date)}</div>`:''}</td>
+      <td><span class="st-note">${esc(c.source||'')}</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('empty').style.display = rows.length ? 'none' : 'block';
+}
+
+function statusSelect(c){
+  const opts = STATUSES.map(s => `<option value="${s}" ${c.status===s?'selected':''}>${s}</option>`).join('');
+  return `<select class="st" onchange="setStatus(${c.id}, this.value)">${opts}</select>`;
+}
+
+async function setStatus(id, status){
+  if (location.hostname.includes('github.io')) {
+    alert('⚠️ GitHub Pages 係靜態網站 — status 更新要經 Hermes agent 做（例如講「幫我 mark RNG Wine 做 contacted」）。本地版先支援即時更新。');
+    return;
+  }
+  try {
+    const r = await fetch('/api/status', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({id, status}) });
+    const d = await r.json();
+    if(!r.ok) alert('更新失敗: ' + (d.error||r.status));
+  } catch(e){ alert('更新失敗: ' + e.message); }
+}
+
+function exportCSV(){
+  const head = ['id','name_cn','name_en','category','subcategory','mtype','status','website','ig','fb','threads','email','phone','whatsapp','stores','ad_level','ad_pixels','ad_library','ad_evidence','fee_rating','fee_note','score','likelihood','source','verified_date','notes'];
+  const escCsv = s => { s = (s==null?'':String(s)); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const lines = [head.join(',')].concat(C.map(c => head.map(h => escCsv(c[h])).join(',')));
+  const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'merchant_invite_candidates.csv';
+  a.click();
+}
+
+// populate filter options + stats
+function init(){
+  const cats = [...new Set(C.map(c=>c.category).filter(Boolean))].sort();
+  document.getElementById('fCat').innerHTML += cats.map(c=>`<option>${esc(c)}</option>`).join('');
+  const stSel = document.getElementById('fStatus');
+  stSel.innerHTML = '<option value="">狀態: 全部</option>' + STATUSES.map(s=>`<option>${s}</option>`).join('');
+  const cnt = s => C.filter(c=>c.status===s).length;
+  const nReady = cnt('verified_not_on');
+  const nHigh = C.filter(c=>c.likelihood==='高').length;
+  const nFee = C.filter(c=>c.fee_rating==='高').length;
+  const nAd = C.filter(c=>c.ad_library==='active'||c.ad_level==='高').length;
+  const nMid = C.filter(c=>c.likelihood==='中').length;
+  document.getElementById('stats').innerHTML = `
+    <div class="card blue"><div class="num">${C.length}</div><div class="lbl">總 Candidates</div></div>
+    <div class="card green"><div class="num">${nReady}</div><div class="lbl">Ready Pool（未開鋪）</div></div>
+    <div class="card yellow"><div class="num">${nHigh}</div><div class="lbl">機會率高</div></div>
+    <div class="card"><div class="num">${nMid}</div><div class="lbl">機會率中</div></div>
+    <div class="card purple"><div class="num">${nFee}</div><div class="lbl">年費能力高</div></div>
+    <div class="card red"><div class="num">${nAd}</div><div class="lbl">廣告活躍</div></div>`;
+}
+
+document.getElementById('q').addEventListener('input', render);
+['fStatus','fLike','fFee','fAd','fMtype','fCat'].forEach(id => document.getElementById(id).addEventListener('change', render));
+init(); render();
+</script>
+</body>
+</html>
