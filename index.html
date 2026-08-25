@@ -90,16 +90,6 @@
 
 <div class="stats" id="stats"></div>
 
-<!-- 今日建議 5 間 -->
-<div id="daily" style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
-    <b style="font-size:1rem">🎯 今日建議 5 間（每日自動輪換）</b>
-    <span class="st-note" id="dailyDate"></span>
-    <button class="ghost" style="background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;margin-left:auto" onclick="openDailyAll()">💬 全部 WhatsApp</button>
-  </div>
-  <div id="dailyCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
-</div>
-
 <div class="filters">
   <input type="text" id="q" placeholder="🔍 搜尋品牌名 / 類別 / 網站…">
   <select id="fStatus"><option value="">狀態: 全部</option></select>
@@ -157,6 +147,12 @@ function link(s, label, cls, title){ if(!s) return ''; const u=urlOf(s); return 
 function badge(v, cls){ return v ? `<span class="badge ${cls}">${esc(v)}</span>` : '<span class="badge b-none">—</span>'; }
 function likeCls(v){ return v==='高'?'b-high':(v==='中'?'b-mid':(v==='低'?'b-low':'b-none')); }
 function isPages(){ return location.hostname.includes('github.io'); }
+function isNew(c){
+  if (!c.created_at) return false;
+  const t = new Date(c.created_at.replace(' ', 'T'));
+  if (isNaN(t)) return false;
+  return (Date.now() - t.getTime()) < 7 * 86400000;
+}
 
 // ── invitation draft ────────────────────────────────────────────
 function waNumOf(raw){
@@ -259,6 +255,7 @@ function render(){
     return `<tr class="${ticked[c.id]?'ticked':''}">
       <td><input type="checkbox" ${ticked[c.id]?'checked':''} onchange="onTick(${c.id}, this.checked)"></td>
       <td class="name">${esc(c.name_cn||'—')}${c.name_en?`<br><span class="en">${esc(c.name_en)}</span>`:''}
+          ${isNew(c)?'<span class="badge b-active" style="margin-top:2px">🆕 新加入</span>':''}
           ${c.stores?`<div class="st-note">🏬 ${esc(c.stores)}</div>`:''}
           ${c.notes?`<div class="st-note">📝 ${esc(String(c.notes).slice(0,80))}</div>`:''}</td>
       <td>${esc(c.category||'—')}${c.subcategory?`<div class="st-note">${esc(c.subcategory)}</div>`:''}<div class="st-note">${esc(c.mtype||'')}</div></td>
@@ -286,7 +283,6 @@ function render(){
   }).join('');
   document.getElementById('empty').style.display = rows.length ? 'none' : 'block';
   document.getElementById('ckAll').checked = rows.length > 0 && rows.every(r => ticked[r.id]);
-  renderDaily();
 }
 
 function statusSelect(c){
@@ -431,6 +427,7 @@ function init(){
   const nSent = C.filter(c=>c.sent_at).length;
   const nSuccess = C.filter(c=>c.merchant_id || c.result==='completed').length;
   const nRejected = C.filter(c=>c.result==='rejected').length;
+  const nNew = C.filter(isNew).length;
   document.getElementById('stats').innerHTML = `
     <div class="card blue"><div class="num">${C.length}</div><div class="lbl">總 Candidates</div></div>
     <div class="card green"><div class="num">${nReady}</div><div class="lbl">Ready Pool（未開鋪）</div></div>
@@ -440,7 +437,8 @@ function init(){
     <div class="card red"><div class="num">${nAd}</div><div class="lbl">廣告活躍</div></div>
     <div class="card" style="border-color:var(--green)"><div class="num" style="color:var(--green)">${nSent}</div><div class="lbl">✅ 已發送</div></div>
     <div class="card" style="border-color:var(--yellow)"><div class="num" style="color:var(--yellow)">${nSuccess}</div><div class="lbl">🏆 成功案例</div></div>
-    <div class="card" style="border-color:var(--red)"><div class="num" style="color:var(--red)">${nRejected}</div><div class="lbl">❌ Rejected</div></div>`;
+    <div class="card" style="border-color:var(--red)"><div class="num" style="color:var(--red)">${nRejected}</div><div class="lbl">❌ Rejected</div></div>
+    <div class="card" style="border-color:var(--accent)"><div class="num" style="color:var(--accent)">${nNew}</div><div class="lbl">🆕 本週新增</div></div>`;
 }
 
 document.getElementById('q').addEventListener('input', render);
@@ -468,43 +466,6 @@ async function loadSupabaseState(){
   } catch(e){ console.warn('supabase state load failed', e); }
 }
 loadSupabaseState();
-
-// ── 今日建議 5 間（每日自動輪換）──────────────────────────────
-function dailyPicks(){
-  const pool = C.filter(c => c.status === 'verified_not_on' && !c.result && !c.sent_at)
-                .sort((a,b) => (b.score||0) - (a.score||0));
-  if (!pool.length) return [];
-  if (pool.length <= 5) return pool;
-  const groups = Math.ceil(pool.length / 5);
-  const dayNum = Math.floor(Date.now() / 86400000);
-  const start = (dayNum % groups) * 5;
-  return pool.slice(start, start + 5);
-}
-function renderDaily(){
-  const picks = dailyPicks();
-  const today = new Date().toLocaleDateString('zh-HK', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-  document.getElementById('dailyDate').textContent = '（' + today + '）';
-  document.getElementById('dailyCards').innerHTML = picks.map(c => `
-    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px">
-      <div style="font-weight:600;font-size:0.9rem">${esc(c.name_cn||c.name_en)}${c.name_en&&c.name_cn?` <span style="color:var(--muted);font-weight:400">${esc(c.name_en)}</span>`:''}</div>
-      <div class="st-note">${esc(c.category||'')}${c.mtype?' · '+esc(c.mtype):''} ｜ score ${c.score||0} ${esc(c.likelihood||'')}</div>
-      <div class="contacts" style="margin-top:6px">
-        ${waNumber(c)?`<span class="chip wa"><a href="https://wa.me/${waNumber(c)}?text=${encodeURIComponent(shortMsgFor(c))}" target="_blank">💬 ${esc(waDisplay(c.whatsapp)||('+852 '+waNumber(c).slice(-8,-4)+' '+waNumber(c).slice(-4)))}</a></span>`:''}
-        ${c.phone?`<span class="chip"><a href="tel:${c.phone.replace(/\s/g,'')}">📞 ${esc(c.phone)}</a></span>`:''}
-        ${c.website?`<span class="chip"><a href="${esc(urlOf(c.website))}" target="_blank">🌐</a></span>`:''}
-      </div>
-      <div style="margin-top:8px;display:flex;gap:6px">
-        <input type="checkbox" ${ticked[c.id]?'checked':''} onchange="onTick(${c.id}, this.checked)" title="tick = 開 WhatsApp + 邀請 panel">
-        <span class="st-note" style="align-self:center">tick → 開 WhatsApp + draft</span>
-      </div>
-    </div>`).join('') || '<span class="st-note">今日冇 active candidate（可能全部已發送/已 close）</span>';
-}
-function openDailyAll(){
-  const picks = dailyPicks().filter(c => waNumber(c));
-  if (!picks.length) return alert('今日建議冇 WhatsApp contact');
-  picks.forEach(c => window.open(`https://wa.me/${waNumber(c)}?text=${encodeURIComponent(shortMsgFor(c))}`, '_blank'));
-  alert(`✅ 今日 ${picks.length} 間已開 WhatsApp（短訊息）`);
-}
 </script>
 </body>
 </html>
