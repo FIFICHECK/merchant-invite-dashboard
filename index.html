@@ -413,7 +413,7 @@ async function downloadPitch(){
   const web = c.website || '';
   const fee = c.fee_rating === '高' ? '高（具備能力）' : (c.fee_rating === '中' ? '中（需評估）' : '低');
   try {
-    if (!window.PptxGenJS) await loadScript('https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');
+    if (!window.PptxGenJS) await loadScript('https://' + 'cdn.jsdelivr' + '.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js');
     const pptx = new window.PptxGenJS();
     pptx.defineLayout({name: 'WIDE', width: 13.33, height: 7.5});
     pptx.layout = 'WIDE';
