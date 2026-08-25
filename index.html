@@ -90,6 +90,16 @@
 
 <div class="stats" id="stats"></div>
 
+<!-- 今日建議 5 間 -->
+<div id="daily" style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+    <b style="font-size:1rem">🎯 今日建議 5 間（每日自動輪換）</b>
+    <span class="st-note" id="dailyDate"></span>
+    <button class="ghost" style="background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:5px 12px;cursor:pointer;margin-left:auto" onclick="openDailyAll()">💬 全部 WhatsApp</button>
+  </div>
+  <div id="dailyCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+</div>
+
 <div class="filters">
   <input type="text" id="q" placeholder="🔍 搜尋品牌名 / 類別 / 網站…">
   <select id="fStatus"><option value="">狀態: 全部</option></select>
@@ -149,12 +159,27 @@ function likeCls(v){ return v==='高'?'b-high':(v==='中'?'b-mid':(v==='低'?'b-
 function isPages(){ return location.hostname.includes('github.io'); }
 
 // ── invitation draft ────────────────────────────────────────────
+function waNumOf(raw){
+  // URL-aware phone extraction (wa.me/852…, phone=852…, %2B852…, plain digits)
+  const s = (raw||'');
+  let m = s.match(/(?:wa\.me\/|phone=|%2F|%2B)(852\d{8})/i);
+  if (m) return m[1];
+  if (/wa\.me\/message\//i.test(s)) return '';
+  m = s.match(/(?:wa\.me\/|phone=)(\d{8})(?:\D|$)/i);
+  if (m) return '852' + m[1];
+  const d = s.replace(/\D/g, '');
+  if (d.length === 8) return '852' + d;
+  if (d.length === 11 && d.startsWith('852')) return d;
+  return '';
+}
 function waDisplay(wa){
-  const d = (wa||'').replace(/[^\d]/g,'');
-  if (!d) return '';
-  return d.length === 8 ? '+852 ' + d.slice(0,4) + ' ' + d.slice(4)
-       : d.length === 11 ? '+852 ' + d.slice(3,7) + ' ' + d.slice(7)
-       : '+852 ' + d;
+  const n = waNumOf(wa);
+  if (!n || n.length < 10) return '';
+  return '+852 ' + n.slice(-8, -4) + ' ' + n.slice(-4);
+}
+function shortMsgFor(c){
+  const name = (c.name_cn || c.name_en || '貴品牌').trim();
+  return `Hi ${name}！我係 HKTVmall Jerry Chan，想邀請你哋加入 HKTVmall 🚀 詳情可以睇埋跟住嘅訊息同附件～`;
 }
 function draftFor(c){
   const name = (c.name_cn || c.name_en || '貴品牌').trim();
@@ -185,8 +210,8 @@ Tel / WhatsApp: 6071 4793`;
 }
 
 function waNumber(c){
-  const wa = (c.whatsapp || '').replace(/[^\d]/g, '');
-  if (wa && wa.length >= 8) return wa.length === 8 ? '852' + wa : wa;
+  const n = waNumOf(c.whatsapp);
+  if (n) return n;
   const ph = (c.phone || '').replace(/[^\d]/g, '');
   if (ph && ph.length === 8) return '852' + ph;
   return '';
@@ -194,9 +219,10 @@ function waNumber(c){
 
 function openChannel(c, draft){
   const num = waNumber(c);
-  const text = encodeURIComponent(draft);
+  // 短訊息 link（避免 wa.me URL 過長）；完整邀請信留喺 panel 手動貼
+  const text = encodeURIComponent(shortMsgFor(c));
   if (num) { window.open(`https://wa.me/${num}?text=${text}`, '_blank'); return 'wa'; }
-  if (c.email) { window.open(`mailto:${c.email}?subject=${encodeURIComponent('HKTVmall 開店邀請 — ' + (c.name_cn||c.name_en))}&body=${text}`, '_blank'); return 'mail'; }
+  if (c.email) { window.open(`mailto:${c.email}?subject=${encodeURIComponent('HKTVmall 開店邀請 — ' + (c.name_cn||c.name_en))}&body=${encodeURIComponent(draft)}`, '_blank'); return 'mail'; }
   if (c.phone) { window.open(`tel:${c.phone.replace(/\s/g,'')}`, '_blank'); return 'tel'; }
   return '';
 }
@@ -221,7 +247,7 @@ function render(){
     if(c.website) contacts.push(link(c.website, '🌐 官網'));
     if(c.email) contacts.push(link('mailto:'+c.email, '✉️ '+c.email));
     if(c.phone) contacts.push(link('tel:'+c.phone.replace(/\s/g,''), '📞 '+c.phone));
-    if(c.whatsapp) contacts.push(`<span class="chip wa"><a href="https://wa.me/${(c.whatsapp.replace(/[^\d]/g,''))}" target="_blank">💬 ${esc(waDisplay(c.whatsapp))}</a></span>`);
+    if(c.whatsapp) contacts.push(`<span class="chip wa"><a href="https://wa.me/${waNumOf(c.whatsapp)}" target="_blank">💬 ${esc(waDisplay(c.whatsapp))}</a></span>`);
     const socials = [];
     if(c.ig) socials.push(link('https://www.instagram.com/'+c.ig.replace(/^@/,''), 'IG:'+c.ig.replace(/^@/,'').slice(0,20)));
     if(c.fb) socials.push(link('https://www.facebook.com/'+c.fb.replace(/^@/,''), 'FB:'+c.fb.replace(/^@/,'').slice(0,20)));
@@ -260,6 +286,7 @@ function render(){
   }).join('');
   document.getElementById('empty').style.display = rows.length ? 'none' : 'block';
   document.getElementById('ckAll').checked = rows.length > 0 && rows.every(r => ticked[r.id]);
+  renderDaily();
 }
 
 function statusSelect(c){
@@ -374,8 +401,8 @@ function downloadPitch(){
 function batchWhatsApp(){
   const sel = C.filter(c => ticked[c.id] && waNumber(c));
   if (!sel.length) return alert('未 tick 任何有 WhatsApp 嘅 store');
-  sel.forEach(c => window.open(`https://wa.me/${waNumber(c)}?text=${encodeURIComponent(draftFor(c))}`, '_blank'));
-  alert(`✅ 已開 ${sel.length} 個 WhatsApp tab（瀏覽器可能問你准唔准開 popup）`);
+  sel.forEach(c => window.open(`https://wa.me/${waNumber(c)}?text=${encodeURIComponent(shortMsgFor(c))}`, '_blank'));
+  alert(`✅ 已開 ${sel.length} 個 WhatsApp tab（短訊息；完整邀請信喺 panel 複製）`);
 }
 
 function exportCSV(){
@@ -441,6 +468,43 @@ async function loadSupabaseState(){
   } catch(e){ console.warn('supabase state load failed', e); }
 }
 loadSupabaseState();
+
+// ── 今日建議 5 間（每日自動輪換）──────────────────────────────
+function dailyPicks(){
+  const pool = C.filter(c => c.status === 'verified_not_on' && !c.result && !c.sent_at)
+                .sort((a,b) => (b.score||0) - (a.score||0));
+  if (!pool.length) return [];
+  if (pool.length <= 5) return pool;
+  const groups = Math.ceil(pool.length / 5);
+  const dayNum = Math.floor(Date.now() / 86400000);
+  const start = (dayNum % groups) * 5;
+  return pool.slice(start, start + 5);
+}
+function renderDaily(){
+  const picks = dailyPicks();
+  const today = new Date().toLocaleDateString('zh-HK', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  document.getElementById('dailyDate').textContent = '（' + today + '）';
+  document.getElementById('dailyCards').innerHTML = picks.map(c => `
+    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px">
+      <div style="font-weight:600;font-size:0.9rem">${esc(c.name_cn||c.name_en)}${c.name_en&&c.name_cn?` <span style="color:var(--muted);font-weight:400">${esc(c.name_en)}</span>`:''}</div>
+      <div class="st-note">${esc(c.category||'')}${c.mtype?' · '+esc(c.mtype):''} ｜ score ${c.score||0} ${esc(c.likelihood||'')}</div>
+      <div class="contacts" style="margin-top:6px">
+        ${waNumber(c)?`<span class="chip wa"><a href="https://wa.me/${waNumber(c)}?text=${encodeURIComponent(shortMsgFor(c))}" target="_blank">💬 ${esc(waDisplay(c.whatsapp)||('+852 '+waNumber(c).slice(-8,-4)+' '+waNumber(c).slice(-4)))}</a></span>`:''}
+        ${c.phone?`<span class="chip"><a href="tel:${c.phone.replace(/\s/g,'')}">📞 ${esc(c.phone)}</a></span>`:''}
+        ${c.website?`<span class="chip"><a href="${esc(urlOf(c.website))}" target="_blank">🌐</a></span>`:''}
+      </div>
+      <div style="margin-top:8px;display:flex;gap:6px">
+        <input type="checkbox" ${ticked[c.id]?'checked':''} onchange="onTick(${c.id}, this.checked)" title="tick = 開 WhatsApp + 邀請 panel">
+        <span class="st-note" style="align-self:center">tick → 開 WhatsApp + draft</span>
+      </div>
+    </div>`).join('') || '<span class="st-note">今日冇 active candidate（可能全部已發送/已 close）</span>';
+}
+function openDailyAll(){
+  const picks = dailyPicks().filter(c => waNumber(c));
+  if (!picks.length) return alert('今日建議冇 WhatsApp contact');
+  picks.forEach(c => window.open(`https://wa.me/${waNumber(c)}?text=${encodeURIComponent(shortMsgFor(c))}`, '_blank'));
+  alert(`✅ 今日 ${picks.length} 間已開 WhatsApp（短訊息）`);
+}
 </script>
 </body>
 </html>
