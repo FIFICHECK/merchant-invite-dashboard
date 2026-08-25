@@ -104,7 +104,7 @@
 <table>
 <thead><tr>
   <th style="width:34px"><input type="checkbox" id="ckAll" onchange="toggleAll(this.checked)" title="全選"></th>
-  <th>品牌</th><th>類別</th><th>Contact</th><th>社交</th><th>廣告活躍</th><th>年費能力</th><th>分數</th><th>機會</th><th>狀態</th><th>來源</th>
+  <th>品牌</th><th>類別</th><th>Contact</th><th>社交</th><th>廣告活躍</th><th>年費能力</th><th>分數</th><th>機會</th><th>狀態</th><th>發送</th><th>跟進</th><th>回覆</th><th>商戶ID</th>
 </tr></thead>
 <tbody id="rows"></tbody>
 </table>
@@ -122,6 +122,7 @@
   <div class="acts">
     <button id="pnlWa" onclick="openWaCurrent()">💬 開啟 WhatsApp Web</button>
     <button class="ghost" onclick="copyDraft()">📋 複製 Draft</button>
+    <button class="dl" onclick="window.open('assets/invitation_kit.png','_blank')">📎 邀請附件包（名卡+Rate Card）</button>
     <button class="dl" onclick="window.open('assets/name_card.jpg','_blank')">📇 名卡</button>
     <button class="dl" onclick="window.open('assets/rate_card.png','_blank')">💳 Rate Card</button>
     <button class="ppt" onclick="downloadPitch()">📊 生成 Pitch PPT</button>
@@ -145,6 +146,13 @@ function likeCls(v){ return v==='高'?'b-high':(v==='中'?'b-mid':(v==='低'?'b-
 function isPages(){ return location.hostname.includes('github.io'); }
 
 // ── invitation draft ────────────────────────────────────────────
+function waDisplay(wa){
+  const d = (wa||'').replace(/[^\d]/g,'');
+  if (!d) return '';
+  return d.length === 8 ? '+852 ' + d.slice(0,4) + ' ' + d.slice(4)
+       : d.length === 11 ? '+852 ' + d.slice(3,7) + ' ' + d.slice(7)
+       : '+852 ' + d;
+}
 function draftFor(c){
   const name = (c.name_cn || c.name_en || '貴品牌').trim();
   const nameEn = c.name_en ? ` (${c.name_en})` : '';
@@ -157,10 +165,12 @@ function draftFor(c){
 留意到貴品牌喺${cat}領域做得幾好${web}，想邀請你哋加入 HKTVmall — 香港最大網購平台，擁有 300萬+ 活躍會員！🚀
 
 ✨ 點解要考慮 HKTVmall？
-• 首年年費僅 HK$25,000（限時優惠，絕無隱藏收費）
+• 首年年費僅 HK$25,000（平均每月約 HK$2,083，限時優惠，絕無隱藏收費）
 • 300萬+ 會員流量，即刻開拓線上客源
 • 一站式物流 + 倉儲 + 客戶服務
 • 廣告 / 直播帶貨 / 會員日活動支援
+
+🔗 平台網站：https://www.hktvmall.com/
 
 📎 名卡同 Rate Card 喺附件，詳細收費一睇就明。有興趣嘅話，隨時 WhatsApp 我哋傾多啲 😊
 
@@ -168,7 +178,7 @@ Best regards,
 Jerry Chan
 Senior Merchant Relationship Manager
 HKTVmall（香港科技探索有限公司）
-Email: jerry.chan@hktv.com.hk | Tel: 3145 6888`;
+Tel / WhatsApp: 6071 4793`;
 }
 
 function waNumber(c){
@@ -208,7 +218,7 @@ function render(){
     if(c.website) contacts.push(link(c.website, '🌐 官網'));
     if(c.email) contacts.push(link('mailto:'+c.email, '✉️ '+c.email));
     if(c.phone) contacts.push(link('tel:'+c.phone.replace(/\s/g,''), '📞 '+c.phone));
-    if(c.whatsapp) contacts.push(`<span class="chip wa"><a href="https://wa.me/${(c.whatsapp.replace(/[^\d]/g,''))}" target="_blank">💬 ${esc(c.whatsapp)}</a></span>`);
+    if(c.whatsapp) contacts.push(`<span class="chip wa"><a href="https://wa.me/${(c.whatsapp.replace(/[^\d]/g,''))}" target="_blank">💬 ${esc(waDisplay(c.whatsapp))}</a></span>`);
     const socials = [];
     if(c.ig) socials.push(link('https://www.instagram.com/'+c.ig.replace(/^@/,''), 'IG:'+c.ig.replace(/^@/,'').slice(0,20)));
     if(c.fb) socials.push(link('https://www.facebook.com/'+c.fb.replace(/^@/,''), 'FB:'+c.fb.replace(/^@/,'').slice(0,20)));
@@ -232,7 +242,11 @@ function render(){
       <td><span class="scorebar"><i style="width:${Math.min(100,score)}%"></i></span>${score}</td>
       <td>${badge(c.likelihood||'—', likeCls(c.likelihood))}</td>
       <td>${statusSelect(c)}${c.verified_date?`<div class="st-note">✓ ${esc(c.verified_date)}</div>`:''}</td>
-      <td><span class="st-note">${esc(c.source||'')}</span></td>
+      <td>${c.sent_at?`<div class="st-note" style="color:var(--green)">✅ ${esc(String(c.sent_at).slice(0,16))}</div>`:'<span class="st-note">未發送</span>'}
+          <button class="st" onclick="markSent(${c.id})" style="margin-top:4px;cursor:pointer">✓ 已發送</button></td>
+      <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.followup||'')}" placeholder="e.g. 3日後 follow up" onchange="saveField(${c.id},'followup',this.value)"></td>
+      <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.feedback||'')}" placeholder="e.g. 傾緊佣金" onchange="saveField(${c.id},'feedback',this.value)"></td>
+      <td><input class="st" style="width:100%;min-width:90px" value="${esc(c.merchant_id||'')}" placeholder="B2019001 = 成功" onchange="saveField(${c.id},'merchant_id',this.value)" title="填咗商戶ID = success case"></td>
     </tr>`;
   }).join('');
   document.getElementById('empty').style.display = rows.length ? 'none' : 'block';
@@ -250,11 +264,35 @@ async function setStatus(id, status){
     return;
   }
   try {
-    const r = await fetch('/api/status', { method:'POST', headers:{'Content-Type':'application/json'},
+    const r = await fetch('/api/update', { method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({id, status}) });
     const d = await r.json();
     if(!r.ok) alert('更新失敗: ' + (d.error||r.status));
   } catch(e){ alert('更新失敗: ' + e.message); }
+}
+
+async function saveField(id, field, value){
+  if (isPages()) {
+    alert('⚠️ GitHub Pages 係靜態網站 — 要經 Hermes agent 記低（例如講「幫我記 Aiko Mall 已 send，merchant_id=B2019001」）。本地版先支援即時輸入。');
+    return;
+  }
+  try {
+    const r = await fetch('/api/update', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({id, [field]: value}) });
+    const d = await r.json();
+    if(!r.ok) alert('儲存失敗: ' + (d.error||r.status));
+  } catch(e){ alert('儲存失敗: ' + e.message); }
+}
+
+function markSent(id){
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const ts = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  if (isPages()) { alert('⚠️ Pages 版唔可以自動記 — 話我知（例如「mark Aiko Mall 已發送」），或者用本地版。時間會係：' + ts); return; }
+  saveField(id, 'sent_at', ts);
+  const c = C.find(x => x.id === id);
+  if (c) c.sent_at = ts;
+  render();
 }
 
 // ── tick → WhatsApp + panel ─────────────────────────────────────
@@ -341,13 +379,17 @@ function init(){
   const nFee = C.filter(c=>c.fee_rating==='高').length;
   const nAd = C.filter(c=>c.ad_library==='active'||c.ad_level==='高').length;
   const nMid = C.filter(c=>c.likelihood==='中').length;
+  const nSent = C.filter(c=>c.sent_at).length;
+  const nSuccess = C.filter(c=>c.merchant_id).length;
   document.getElementById('stats').innerHTML = `
     <div class="card blue"><div class="num">${C.length}</div><div class="lbl">總 Candidates</div></div>
     <div class="card green"><div class="num">${nReady}</div><div class="lbl">Ready Pool（未開鋪）</div></div>
     <div class="card yellow"><div class="num">${nHigh}</div><div class="lbl">機會率高</div></div>
     <div class="card"><div class="num">${nMid}</div><div class="lbl">機會率中</div></div>
     <div class="card purple"><div class="num">${nFee}</div><div class="lbl">年費能力高</div></div>
-    <div class="card red"><div class="num">${nAd}</div><div class="lbl">廣告活躍</div></div>`;
+    <div class="card red"><div class="num">${nAd}</div><div class="lbl">廣告活躍</div></div>
+    <div class="card" style="border-color:var(--green)"><div class="num" style="color:var(--green)">${nSent}</div><div class="lbl">✅ 已發送</div></div>
+    <div class="card" style="border-color:var(--yellow)"><div class="num" style="color:var(--yellow)">${nSuccess}</div><div class="lbl">🏆 成功案例</div></div>`;
 }
 
 document.getElementById('q').addEventListener('input', render);
