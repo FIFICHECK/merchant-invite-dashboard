@@ -37,6 +37,7 @@
   td { padding: 7px 10px; border-top: 1px solid var(--border); vertical-align: top; font-size: 0.84rem; }
   tr:hover td { background: #1d2733; }
   tr.ticked td { background: #12301f; }
+  tr.row-sent td { background: rgba(135, 206, 250, 0.30); }  /* 已發送 → 淺藍色 */
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
   .name { font-weight: 600; }
@@ -251,7 +252,7 @@ function render(){
     const adTxt = (c.ad_level? c.ad_level : '—') + (c.ad_library==='active' ? ' +AdLib' : '');
     const fee = badge(c.fee_rating, c.fee_rating==='高'?'b-high':(c.fee_rating==='中'?'b-mid':'b-low'));
     const score = c.score||0;
-    return `<tr class="${ticked[c.id]?'ticked':''}">
+    return `<tr class="${ticked[c.id]?'ticked':''}${c.sent_at?' row-sent':''}">
       <td><input type="checkbox" ${ticked[c.id]?'checked':''} onchange="onTick(${c.id}, this.checked)"></td>
       <td class="name">${esc(c.name_cn||'—')}${c.name_en?`<br><span class="en">${esc(c.name_en)}</span>`:''}
           ${isNew(c)?'<span class="badge b-active" style="margin-top:2px">🆕 新加入</span>':''}
