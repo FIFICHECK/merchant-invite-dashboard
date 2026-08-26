@@ -80,7 +80,7 @@
 </style>
 </head>
 <body>
-<h1>🚀 New Merchant Invite Dashboard <span style="font-size:0.78rem;color:var(--muted)">(每週更新)</span></h1>
+<h1>🚀 New Merchant Invite Dashboard <span style="font-size:0.78rem;color:var(--muted)">(每日自動加 5 間)</span></h1><div style="font-size:12px;color:var(--muted);margin:-6px 0 8px">📅 資料更新: <span id="dataTime">…</span></div>
 <div class="sub">HKTVmall 商戶開發 — 每星期由出面搵新 potential merchant，符合 4 個 invite 條件先入選</div>
 <div class="criteria">
   🎯 <b>Invite 條件</b>：C1 有自己 website / IG / FB / Threads ｜ C2 有直接 email / Tel / WhatsApp contact ｜
@@ -133,7 +133,7 @@
   <div class="hint" id="pnlHint"></div>
 </div>
 
-<script src="data.js?v=20260826081513"></script>
+<script src="data.js?v=20260826085754"></script>
 <script>
 const D = window.MERCHANT_INVITE_DATA || { candidates: [] };
 const C = D.candidates || [];
@@ -522,6 +522,9 @@ function exportCSV(){
 
 // populate filter options + stats
 function init(){
+  const dt = D && D.exported_at ? D.exported_at : '';
+  document.getElementById('dataTime').textContent = dt || '未知';
+
   const cats = [...new Set(C.map(c=>c.category).filter(Boolean))].sort();
   document.getElementById('fCat').innerHTML += cats.map(c=>`<option>${esc(c)}</option>`).join('');
   const stSel = document.getElementById('fStatus');
