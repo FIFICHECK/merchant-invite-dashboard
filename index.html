@@ -486,7 +486,7 @@ async function downloadPitch(){
       fill: {color: 'F5F5F5'},
       valign: 'middle',
     };
-    s4.addTable(t4, {x: 0.3, y: 1.0, w: 12.7, h: 5.2});
+    s4.addTable(t4.rows, {x: 0.3, y: 1.0, w: 12.7, h: 5.2, colW: t4.colW, fontSize: 9, border: {pt: 0.5, color: 'CCCCCC'}, fill: {color: 'F5F5F5'}, valign: 'middle'});
     s4.addText('※ 以上為對比總表摘要，完整條款以各供應商最新報價為準。HKTVmall 可協助對接合適 3PL。', {x: 0.5, y: 6.5, w: 12.3, h: 0.5, fontSize: 10, color: '999999', italic: true});
 
     // Slide 5 — Rate Card + 名卡
