@@ -190,6 +190,8 @@ function draftFor(c){
 
 ✨ 點解要考慮 HKTVmall？
 • 首年年費僅 HK$25,000（平均每月約 HK$2,083，限時優惠，絕無隱藏收費）
+• 佣金率按商品分類 8-15%（以 MMS 系統顯示為準，標準派送 10% 為主）
+• 付款方式：月結 — 每月最後一日截數，下個月 15 個工作天內自動轉帳找數
 • 300萬+ 會員流量，即刻開拓線上客源
 • 一站式物流 + 倉儲 + 客戶服務
 • 廣告 / 直播帶貨 / 會員日活動支援
@@ -450,13 +452,50 @@ async function downloadPitch(){
     ], {x: 0.5, y: 1.5, w: 12.3, h: 3.2, fontSize: 16, color: '333333', lineSpacing: 34});
     s2.addText('📞 詳情聯絡: Jerry Chan（Senior MRM）｜Tel/WhatsApp: 6071 4793｜https://www.hktvmall.com/', {x: 0.5, y: 6.6, w: 12.3, h: 0.6, fontSize: 13, color: '666666'});
 
-    // Slide 3 — Rate Card + 名卡
+    // Slide 3 — 收費資料（佣金率 + 付款方式）
     const s3 = pptx.addSlide();
+    s3.background = {color: 'FFFFFF'};
+    s3.addText('收費資料 — 簡單透明', {x: 0.5, y: 0.4, w: 12.3, h: 0.7, fontSize: 26, bold: true, color: 'E31E24'});
+    s3.addText([
+      {text: '年費：HK$25,000 / 年（平均每月約 HK$2,083，限時優惠，絕無隱藏收費）', options: {bullet: true}},
+      {text: '佣金率：按商品分類 8% - 15%（以 MMS 系統顯示為準；大部分分類 10%）', options: {bullet: true}},
+      {text: '商戶自行派送：佣金率更低（5% - 10%）', options: {bullet: true}},
+      {text: '付款方式：月結 — 每月最後一日截數，下個月 15 個工作天內自動轉帳找數', options: {bullet: true}},
+      {text: '費用涵蓋：倉儲 / 物流 / 包裝 / 客戶服務一站式', options: {bullet: true}},
+    ], {x: 0.5, y: 1.6, w: 12.3, h: 3.6, fontSize: 16, color: '333333', lineSpacing: 34});
+    s3.addText('※ 佣金率以 MMS 系統內顯示為準（Commission rate listed on MMS shall prevail）', {x: 0.5, y: 6.5, w: 12.3, h: 0.5, fontSize: 11, color: '999999', italic: true});
+
+    // Slide 4 — 3PL Vendors Comparison（第三方物流對比總表）
+    const s4 = pptx.addSlide();
+    s4.background = {color: 'FFFFFF'};
+    s4.addText('3PL 第三方物流供應商對比總表', {x: 0.5, y: 0.3, w: 12.3, h: 0.6, fontSize: 24, bold: true, color: 'E31E24'});
+    const t4 = {
+      colW: [2.0, 2.26, 2.26, 2.26, 2.26, 2.26],
+      rows: [
+        ['項目', 'Innohub Solutions', 'S+ (Shoptoplus)', 'About Home', 'Best Service', 'D2 Logistics'],
+        ['倉租計費', '按實際 CBM', '套餐制', '卡板 / 貨架', '每日 CBM', '每週 CBM'],
+        ['官方倉租', '$400/CBM/月', '$1,990: 0.8CBM 80單\\n$3,990: 2CBM 200單', '$600/板 或 $1,500-1,800/架', '$11/CBM/日\\n(≈$330/月)', '常溫 $120/CBM/週\\n冷凍 $150/CBM/週'],
+        ['常溫處理費', '$12/單(包3件)', '套餐含90單/月\\n超額 $13.7-19.7/單', '$6起/單', '$16/單\\n高單量 -$2至-$4', '$17→特惠$13/單\\n(全包)'],
+        ['冷凍 -18°C', '另行報價', '冷凍套餐', '冇凍房', '$21/單(可低至$17)', '專案微調'],
+        ['最低消費', '每月 1 CBM', '須頂租套餐', '最少 1 板 / 1 行架', '首 0.5 CBM 免費', '冇最低消費'],
+        ['入倉費', '$1.12/件 $5/箱', '每月4-6次免費\\n超額$200/次', '專案報價', '—', '—'],
+        ['聯絡', 'WhatsApp 9733 2212', 'Joyce 6390 2796', 'Andrew 6401 6624', 'John 5929 5026', 'Rachel 6746 1666'],
+      ],
+      fontSize: 9,
+      border: {pt: 0.5, color: 'CCCCCC'},
+      fill: {color: 'F5F5F5'},
+      valign: 'middle',
+    };
+    s4.addTable(t4, {x: 0.3, y: 1.0, w: 12.7, h: 5.2});
+    s4.addText('※ 以上為對比總表摘要，完整條款以各供應商最新報價為準。HKTVmall 可協助對接合適 3PL。', {x: 0.5, y: 6.5, w: 12.3, h: 0.5, fontSize: 10, color: '999999', italic: true});
+
+    // Slide 5 — Rate Card + 名卡
+    const s5 = pptx.addSlide();
     s3.background = {color: 'F5F5F5'};
     s3.addText('收費表 & 聯絡', {x: 0.5, y: 0.3, w: 12.3, h: 0.6, fontSize: 22, bold: true, color: 'E31E24'});
     const [rc, nc] = await Promise.all([toDataURL('assets/rate_card.png'), toDataURL('assets/name_card.jpg')]);
-    s3.addImage({data: rc, x: 0.5, y: 1.0, w: 5.6, h: 6.0});
-    s3.addImage({data: nc, x: 7.0, y: 1.0, w: 5.6, h: 6.0});
+    s5.addImage({data: rc, x: 0.5, y: 1.0, w: 5.6, h: 6.0});
+    s5.addImage({data: nc, x: 7.0, y: 1.0, w: 5.6, h: 6.0});
 
     await pptx.writeFile({fileName: `HKTVmall_邀請_${(name||'brand').replace(/[\\/:*?"<>|]/g, '_').slice(0, 40)}.pptx`});
   } catch(e){
