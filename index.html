@@ -173,10 +173,6 @@ function waDisplay(wa){
   if (!n || n.length < 10) return '';
   return '+852 ' + n.slice(-8, -4) + ' ' + n.slice(-4);
 }
-function shortMsgFor(c){
-  const name = (c.name_cn || c.name_en || '貴品牌').trim();
-  return `Hi ${name}！我係 HKTVmall Jerry Chan，想邀請你哋加入 HKTVmall 🚀 詳情可以睇埋跟住嘅訊息同附件～`;
-}
 function draftFor(c){
   const name = (c.name_cn || c.name_en || '貴品牌').trim();
   const nameEn = c.name_en ? ` (${c.name_en})` : '';
@@ -192,6 +188,7 @@ function draftFor(c){
 • 首年年費僅 HK$25,000（平均每月約 HK$2,083，限時優惠，絕無隱藏收費）
 • 佣金率按商品分類 8-15%（以 MMS 系統顯示為準，標準派送 10% 為主）
 • 付款方式：月結 — 每月最後一日截數，下個月 15 個工作天內自動轉帳找數
+• 出貨物流：我哋有合作嘅 3PL 物流夥伴可以幫你哋出貨（例如 Best Service 首 0.5 CBM 免費、冇最低消費；Innohub 固定 $400/CBM/月），可以幫你哋對接合適嘅 3PL，慳返倉儲同出貨成本
 • 300萬+ 會員流量，即刻開拓線上客源
 • 一站式物流 + 倉儲 + 客戶服務
 • 廣告 / 直播帶貨 / 會員日活動支援
@@ -218,7 +215,7 @@ function waNumber(c){
 function openChannel(c, draft){
   const num = waNumber(c);
   // 短訊息 link（避免 wa.me URL 過長）；完整邀請信留喺 panel 手動貼
-  const text = encodeURIComponent(shortMsgFor(c));
+  const text = encodeURIComponent(draftFor(c));
   if (num) { window.open(`https://wa.me/${num}?text=${text}`, '_blank'); return 'wa'; }
   if (c.email) { window.open(`mailto:${c.email}?subject=${encodeURIComponent('HKTVmall 開店邀請 — ' + (c.name_cn||c.name_en))}&body=${encodeURIComponent(draft)}`, '_blank'); return 'mail'; }
   if (c.phone) { window.open(`tel:${c.phone.replace(/\s/g,'')}`, '_blank'); return 'tel'; }
@@ -505,8 +502,8 @@ async function downloadPitch(){
 function batchWhatsApp(){
   const sel = C.filter(c => ticked[c.id] && waNumber(c));
   if (!sel.length) return alert('未 tick 任何有 WhatsApp 嘅 store');
-  sel.forEach(c => window.open(`https://wa.me/${waNumber(c)}?text=${encodeURIComponent(shortMsgFor(c))}`, '_blank'));
-  alert(`✅ 已開 ${sel.length} 個 WhatsApp tab（短訊息；完整邀請信喺 panel 複製）`);
+  sel.forEach(c => window.open(`https://wa.me/${waNumber(c)}?text=${encodeURIComponent(draftFor(c))}`, '_blank'));
+  alert(`✅ 已開 ${sel.length} 個 WhatsApp tab（完整邀請信）`);
 }
 
 function exportCSV(){
