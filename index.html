@@ -136,6 +136,7 @@
 
 <script src="data.js?v=20260826085754"></script>
 <script>
+const SHEET_ID = '1f1X1QIJU0AD4JwldnDTd1XKiGo7Ewh_J';
 const D = window.MERCHANT_INVITE_DATA || { candidates: [] };
 const C = D.candidates || [];
 const STATUSES = ["candidate","verified_not_on","verified_on","ambiguous","error","contacted","invited","joined","rejected","used"];
@@ -195,6 +196,7 @@ function draftFor(c){
 • 廣告 / 直播帶貨 / 會員日活動支援
 
 🔗 平台網站：https://www.hktvmall.com/
+📊 佣金率 Rate Card：https://docs.google.com/spreadsheets/d/1f1X1QIJU0AD4JwldnDTd1XKiGo7Ewh_J/edit（可按商品分類查佣金率，以 MMS 系統為準）
 
 📎 名卡同 Rate Card 喺附件，詳細收費一睇就明。有興趣嘅話，隨時 WhatsApp 我哋傾多啲 😊
 
@@ -461,6 +463,8 @@ async function downloadPitch(){
       {text: '付款方式：月結 — 每月最後一日截數，下個月 15 個工作天內自動轉帳找數', options: {bullet: true}},
       {text: '費用涵蓋：倉儲 / 物流 / 包裝 / 客戶服務一站式', options: {bullet: true}},
     ], {x: 0.5, y: 1.6, w: 12.3, h: 3.6, fontSize: 16, color: '333333', lineSpacing: 34});
+    s3.addText('📊 佣金率 Rate Card（可按商品分類查佣金率）：', {x: 0.5, y: 5.5, w: 12.3, h: 0.5, fontSize: 13, color: '333333', bold: true});
+    s3.addText('https://docs.google.com/spreadsheets/d/1f1X1QIJU0AD4JwldnDTd1XKiGo7Ewh_J/edit', {x: 0.5, y: 6.0, w: 12.3, h: 0.5, fontSize: 13, color: '0563C1', hyperlink: {url: 'https://docs.google.com/spreadsheets/d/1f1X1QIJU0AD4JwldnDTd1XKiGo7Ewh_J/edit', tooltip: '開啟佣金率表'}});
     s3.addText('※ 佣金率以 MMS 系統內顯示為準（Commission rate listed on MMS shall prevail）', {x: 0.5, y: 6.5, w: 12.3, h: 0.5, fontSize: 11, color: '999999', italic: true});
 
     // Slide 4 — 3PL Vendors Comparison（第三方物流對比總表）
@@ -468,7 +472,7 @@ async function downloadPitch(){
     s4.background = {color: 'FFFFFF'};
     s4.addText('3PL 第三方物流供應商對比總表', {x: 0.5, y: 0.3, w: 12.3, h: 0.6, fontSize: 24, bold: true, color: 'E31E24'});
     const t4 = {
-      colW: [2.0, 2.26, 2.26, 2.26, 2.26, 2.26],
+      colW: [1.6, 2.22, 2.22, 2.22, 2.22, 2.22],   // sum = 12.7 = table width
       rows: [
         ['項目', 'Innohub Solutions', 'S+ (Shoptoplus)', 'About Home', 'Best Service', 'D2 Logistics'],
         ['倉租計費', '按實際 CBM', '套餐制', '卡板 / 貨架', '每日 CBM', '每週 CBM'],
@@ -479,13 +483,13 @@ async function downloadPitch(){
         ['入倉費', '$1.12/件 $5/箱', '每月4-6次免費\\n超額$200/次', '專案報價', '—', '—'],
         ['聯絡', 'WhatsApp 9733 2212', 'Joyce 6390 2796', 'Andrew 6401 6624', 'John 5929 5026', 'Rachel 6746 1666'],
       ],
-      fontSize: 9,
+      fontSize: 8,
       border: {pt: 0.5, color: 'CCCCCC'},
       fill: {color: 'F5F5F5'},
       valign: 'middle',
     };
-    s4.addTable(t4.rows, {x: 0.3, y: 1.0, w: 12.7, h: 5.2, colW: t4.colW, fontSize: 9, border: {pt: 0.5, color: 'CCCCCC'}, fill: {color: 'F5F5F5'}, valign: 'middle'});
-    s4.addText('※ 以上為對比總表摘要，完整條款以各供應商最新報價為準。HKTVmall 可協助對接合適 3PL。', {x: 0.5, y: 6.5, w: 12.3, h: 0.5, fontSize: 10, color: '999999', italic: true});
+    s4.addTable(t4.rows, {x: 0.3, y: 1.0, w: 12.7, h: 4.6, colW: t4.colW, fontSize: 8, border: {pt: 0.5, color: 'CCCCCC'}, fill: {color: 'F5F5F5'}, valign: 'middle'});
+    s4.addText('※ 以上為對比總表摘要，完整條款以各供應商最新報價為準。HKTVmall 可協助對接合適 3PL。', {x: 0.5, y: 5.8, w: 12.3, h: 0.5, fontSize: 10, color: '999999', italic: true});
 
     // Slide 5 — Rate Card + 名卡
     const s5 = pptx.addSlide();
