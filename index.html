@@ -134,7 +134,7 @@
   <div class="hint" id="pnlHint"></div>
 </div>
 
-<script src="data.js?v=20260826085754"></script>
+<script src="data.js?v=20260826112055"></script>
 <script>
 const SHEET_ID = '1f1X1QIJU0AD4JwldnDTd1XKiGo7Ewh_J';
 const D = window.MERCHANT_INVITE_DATA || { candidates: [] };
@@ -428,7 +428,6 @@ async function downloadPitch(){
     s1.addText([
       {text: `類別: ${cat}`, options: {bullet: true}},
       {text: web ? `網站: ${web}` : '', options: {bullet: true}},
-      {text: `評估分數: ${c.score || 0}（機會率 ${c.likelihood || '—'}）｜年費能力: ${fee}`, options: {bullet: true}},
     ], {x: 0.5, y: 2.0, w: 12.3, h: 1.6, fontSize: 15, color: '333333', lineSpacing: 28});
     s1.addText('點解要考慮 HKTVmall？', {x: 0.5, y: 3.7, w: 12.3, h: 0.5, fontSize: 18, bold: true, color: 'E31E24'});
     s1.addText([
@@ -493,8 +492,8 @@ async function downloadPitch(){
 
     // Slide 5 — Rate Card + 名卡
     const s5 = pptx.addSlide();
-    s3.background = {color: 'F5F5F5'};
-    s3.addText('收費表 & 聯絡', {x: 0.5, y: 0.3, w: 12.3, h: 0.6, fontSize: 22, bold: true, color: 'E31E24'});
+    s5.background = {color: 'F5F5F5'};
+    s5.addText('收費表 & 聯絡', {x: 0.5, y: 0.3, w: 12.3, h: 0.6, fontSize: 22, bold: true, color: 'E31E24'});
     const [rc, nc] = await Promise.all([toDataURL('assets/rate_card.png'), toDataURL('assets/name_card.jpg')]);
     s5.addImage({data: rc, x: 0.5, y: 1.0, w: 5.6, h: 6.0});
     s5.addImage({data: nc, x: 7.0, y: 1.0, w: 5.6, h: 6.0});
