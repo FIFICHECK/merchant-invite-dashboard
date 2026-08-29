@@ -300,12 +300,27 @@ async function setStatus(id, status){
 
 // ── Supabase persistence (works on GitHub Pages too) ────────────
 const SB = D.supabase || null;
+const SB_WRITER = {email: 'mi-dash-writer@fificheck.workers.dev', pw: 'Mi_7iffmzwt2szhhmpa'};
+let sbToken = null;
+async function sbLogin(){
+  if (sbToken) return sbToken;
+  const r = await fetch(SB.url + '/auth/v1/token?grant_type=password', {
+    method: 'POST',
+    headers: {'apikey': SB.anon_key, 'Content-Type': 'application/json'},
+    body: JSON.stringify({email: SB_WRITER.email, password: SB_WRITER.pw})
+  });
+  if (!r.ok) throw new Error('writer login failed ' + r.status);
+  const j = await r.json();
+  sbToken = j.access_token;
+  return sbToken;
+}
 async function sbUpsert(id, fields){
   if (!SB) { alert('⚠️ 未設定 Supabase — 更新唔到'); return; }
   const payload = Object.assign({candidate_id: id}, fields);
+  const token = await sbLogin();
   const r = await fetch(SB.url + '/rest/v1/merchant_invite', {
     method: 'POST',
-    headers: {'apikey': SB.anon_key, 'Authorization': 'Bearer ' + SB.anon_key,
+    headers: {'apikey': SB.anon_key, 'Authorization': 'Bearer ' + token,
               'Content-Type': 'application/json',
               'Prefer': 'resolution=merge-duplicates,return=minimal'},
     body: JSON.stringify(payload)
